@@ -1,5 +1,22 @@
 import tp.*
 
-test "Test de ejemplo" {
-		assert.equals(4, 2 + 2)
+const merlin = new Mago(nombre = "Merlin", poderInnato = 10, objetosEquipados = [varitaDeOro, tunicaEpica, ojoDeDormamu, ojota], resistenciaMagica = 5, energiaMagica= 1000, categoria = inmortal)
+const alex = new Mago(nombre = "Alex", poderInnato = 5, objetosEquipados = [varitaDeOro], resistenciaMagica = 2, energiaMagica= 500, categoria = aprendiz)
+const strange = new Mago(nombre = "Stephen", poderInnato = 9, objetosEquipados = [ojoDeDormamu], resistenciaMagica = 6, energiaMagica= 750, categoria = veterano)
+
+
+const varitaDeOro = new Varitas(poderBase = 10)
+const tunicaEpica = new Tunicas(poderBase = 5, rarezaTunica = epica)
+const ojoDeDormamu = new Amuletos()
+
+describe "Enfrentamientos Mágicos"{
+	test "Calcular el poder total de un mago que es la sumatoria del poder que aportan los objetos magicos que tiene equipados multiplicada por su poder innato" {
+
+		assert.equals(3000, merlin.poderTotal())
+	}
+	test "Cuando dos magos se pelean, el perdedor del duelo pierde energia magica y el ganador recibe esa energia magica"{
+		merlin.desafiar(alex)
+		assert.equals(1250, merlin.energiaMagica())
+		assert.equals(250, alex.energiaMagica())
+	}
 }

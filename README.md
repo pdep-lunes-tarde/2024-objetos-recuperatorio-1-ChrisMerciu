@@ -6,9 +6,9 @@ En papel
 
 ## Estudiante
 
-**Nombre y apellido:** -completar acá-
+**Nombre y apellido:** Christian Merciú
 
-**Número de legajo:** -completar acá-
+**Número de legajo:** 2038470
 
 ## Que hacer cuando terminan el parcial
 
