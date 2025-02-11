@@ -1,16 +1,12 @@
+// ------------------------------------------- Magos y objetos magicos punto 1 -----------------------------------------------
 class Mago{
-    const nombre 
-    const poderInnato
+    const property nombre 
+    const property poderInnato
     const objetosEquipados = []
-    const resistenciaMagica
-    var energiaMagica
-    var categoria
+    const property resistenciaMagica
+    var property energiaMagica
+    var property categoria
 
-    method nombre() = nombre
-    method poderInnato() = poderInnato
-    method resistenciaMagica() = resistenciaMagica
-    method categoria() = categoria
-    method energiaMagica() = energiaMagica
 
     method nuevaCategoria(nuevaCategoria){categoria = nuevaCategoria}
     method poderTotal() = (objetosEquipados.sum{ objetos => objetos.poder(self)}) * poderInnato
@@ -18,28 +14,48 @@ class Mago{
     method cantidadDeLetrasDeNombre() = nombre.length()
     method tieneNombrePar() = (nombre.length()).even()
 
-   method desafiar(otroMago) {
-    energiaMagica = (otroMago.categoria().esVencido(otroMago, self)) + energiaMagica
-    otroMago.perderEnergiaMagica(otroMago.categoria().esVencido(otroMago, self)) 
+    method vence(atacante) = categoria.condicionParaSerVencido(atacante, self)
+
+    method ganarleA(otroMago){
+        self.robarPuntos(otroMago.puntosPerdidos())
+        otroMago.perdio()
     }
 
-    method perderEnergiaMagica(cantidad){
-        energiaMagica = energiaMagica - cantidad
+    method robarPuntos(cantidad){
+        energiaMagica += cantidad
     }
+
+    method perderPuntos(cantidad){
+        energiaMagica -= cantidad.max(0)
+    }
+    method puntosPerdidos() = categoria.puntosPerdidos(self)
+
+    method perdio(){
+        self.perderPuntos(self.puntosPerdidos())
+    }
+
+
+    method esMago() = true
+
+    method puedeVencerA(gremio) = gremio.esVencidoPor(self)
     
+    
+    method desafiarAUnGremio(gremio){
+        if (self.puedeVencerA(gremio)) {
+            self.robarPuntos(gremio.puntosPerdidos())
+            gremio.perderContraUnMago()
+        }
+    }
 }
 
 class ObjetosMagicos{
-
-    method poderBase()
 
     method poder(mago)
 }
 
 class Varitas inherits ObjetosMagicos{
-    const poderBase
+    const property poderBase
 
-    override method poderBase() = poderBase
     override method poder(mago){
         if (mago.tieneNombrePar()){
             return poderBase * 1.5
@@ -49,65 +65,99 @@ class Varitas inherits ObjetosMagicos{
 }
 
 class Tunicas inherits ObjetosMagicos{
-const rarezaTunica
-var poderBase
+const property rarezaTunica
+const property poderBase
 
-
-    method rareza() = rarezaTunica
-    override method poderBase() = poderBase
-    override method poder(mago) = rarezaTunica.poder(self, mago)
+    override method poder(mago) = rarezaTunica.poder(self) +  2 * mago.resistenciaMagica()
        
 }
 
-class Rareza{
-    const rareza
 
-    method rareza() = rareza
+object comun {
+    method poder(tunica) = tunica.poderBase()
 }
-
-object comun inherits Rareza( rareza = self){
-    method poder(tunica, mago) = tunica.poderBase() +  2 * mago.resistenciaMagica()
-}
-object epica inherits Rareza( rareza = self){
-    method poder(tunica, mago) = (tunica.poderBase() + 10) + 2 * mago.resistenciaMagica()
+object epica {
+    method poder(tunica) = (tunica.poderBase() + 10) 
 }
 
 class Amuletos inherits ObjetosMagicos{
 
-    override method poderBase() = 0
     override method poder(mago) = 200
 }
 
 object ojota inherits ObjetosMagicos{
 
-    override method poderBase() = 0
     override method poder(mago) = mago.cantidadDeLetrasDeNombre() * 10
 }
 
+// ------------------------------------------- Magos y objetos magicos punto 2 -----------------------------------------------
+
 object aprendiz{
-    method esVencido(mago, atacante){ 
-        if (mago.resistenciaMagica() < atacante.poderTotal()) {
-            mago.energiaMagica() - mago.energiaMagica() * 0.5} return mago.energiaMagica() * 0.5
-        }
+    method condicionParaSerVencido(atacante, mago) = mago.resistenciaMagica() < atacante.poderTotal()
+    method puntosPerdidos(mago) = mago.energiaMagica() / 2
+
 }
 
 object veterano{
-    method esVencido(mago, atacante){ 
-        if (atacante.poderTotal() >= (mago.resistenciaMagica() * 1.5)) {
-            mago.energiaMagica() - (mago.energiaMagica() * 0.25)} return mago.energiaMagica() * 0.25
-    }
+    method condicionParaSerVencido(atacante, mago) = atacante.poderTotal() >= (mago.resistenciaMagica() * 1.5)
+    method puntosPerdidos(mago) = mago.energiaMagica() * 0.25
 }
 
 object inmortal{
-    method esVencido(mago, atacante) = false 
+    method condicionParaSerVencido(atacante, mago) = false 
+    method puntosPerdidos(mago) = 0
 }
 
+// ------------------------------------------- Gremios punto 1 -----------------------------------------------
+
 class Gremio{
-    const miembros = []
-    var reservaDeEnergia
+    var property lider = self.liderDelGremio()
+    var property miembros 
+
+     method initialize() {
+        if(miembros.size() < 2){
+            throw new Exception(message = "Un gremio debe tener al menos dos miembros")
+        }
+    }
+
+    method esMago() = false
 
     method poderTotalGremio() = miembros.sum{miembros => miembros.poderTotal()}
 
     method reservaDeEnergia() = miembros.sum{miembros => miembros.energiaMagica()}
 
+    method liderDelGremio(){ 
+        const miembroDeMasPoder = miembros.max{miembro => miembro.poderTotal()}
+        if (miembroDeMasPoder.esMago()){return miembroDeMasPoder}
+        else miembroDeMasPoder.liderDelGremio()}
+
+    method resistenciaMagica() = miembros.sum{ miembro => miembro.resistenciaMagica()} + lider.resistenciaMagica()
+
+     method desafiar(otroGremio){ //tambien funciona con un miembro, no tiene porque ser otro gremio
+        if(self.vence(otroGremio)){
+            self.ganarleA(otroGremio)
+        }
+    }
+
+    method vence(otroGremio) = self.esVencidoPor(otroGremio)
+
+    method esVencidoPor(atacante) = atacante.poderTotal() > self.resistenciaMagica()
+
+    method ganarleA(otroGremio){
+        self.darlePuntosAlLider(otroGremio.puntosPerdidos())
+        otroGremio.perdio()
+    }
+
+    method todoElGremioPierdePuntos(){
+     miembros.foreach{miembro => miembro.perderPuntos(miembro.puntosPerdidos())}
+    }
+
+    method darlePuntosAlLider(cantidad){
+        lider.robarPuntos(cantidad)
+    }
+
+    method puntosPerdidos() = miembros.sum{miembro => miembro.puntosPerdidos()}
+
+
+    
 }

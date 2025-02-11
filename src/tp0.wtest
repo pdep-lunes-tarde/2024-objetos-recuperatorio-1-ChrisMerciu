@@ -15,8 +15,19 @@ describe "Enfrentamientos Mágicos"{
 		assert.equals(3000, merlin.poderTotal())
 	}
 	test "Cuando dos magos se pelean, el perdedor del duelo pierde energia magica y el ganador recibe esa energia magica"{
-		merlin.desafiar(alex)
+		merlin.ganarleA(alex)
 		assert.equals(1250, merlin.energiaMagica())
 		assert.equals(250, alex.energiaMagica())
 	}
+
+	test "Si un mago desafia a otro y no lo vence no pasa nada, los magos inmortales no pueden ser vencidos"{
+		alex.ganarleA(merlin)
+		assert.equals(1000, merlin.energiaMagica())
+		assert.equals(500, alex.energiaMagica())
+	}
+
+	test "Un gremio no puede crearse con menos de dos miembros"{
+		assert.throwsException({const gremio = new Gremio(miembros = [alex])})
+	}
+
 }
