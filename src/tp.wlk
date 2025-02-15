@@ -21,6 +21,12 @@ class Mago{
         otroMago.perdio()
     }
 
+    method desafiar(otroMago){ //tambien funciona con un gremio
+        if(self.vence(otroMago)){
+           self.ganarleA(otroMago)
+        } // sino no pasa nada porque no se puede vencer
+    }
+
     method robarPuntos(cantidad){
         energiaMagica += cantidad
     }
