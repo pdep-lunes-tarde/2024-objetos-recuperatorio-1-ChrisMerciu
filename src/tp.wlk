@@ -40,18 +40,7 @@ class Mago{
         self.perderPuntos(self.puntosPerdidos())
     }
 
-
     method esMago() = true
-
-    method puedeVencerA(gremio) = gremio.esVencidoPor(self)
-    
-    
-    method desafiarAUnGremio(gremio){
-        if (self.puedeVencerA(gremio)) {
-            self.robarPuntos(gremio.puntosPerdidos())
-            gremio.perderContraUnMago()
-        }
-    }
 }
 
 class ObjetosMagicos{
